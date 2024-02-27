@@ -11,45 +11,41 @@ import RealityKitContent
 
 struct ContentView: View {
 
-    @State private var showImmersiveSpace = false
-    @State private var immersiveSpaceIsShown = false
-
-    @Environment(\.openImmersiveSpace) var openImmersiveSpace
-    @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
-
     var body: some View {
         VStack {
-            Model3D(named: "Scene", bundle: realityKitContentBundle)
-                .padding(.bottom, 50)
-
-            Text("Hello, world!")
-
-            Toggle("Show Immersive Space", isOn: $showImmersiveSpace)
-                .toggleStyle(.button)
-                .padding(.top, 50)
+            Button("Make it rain!") {
+                
+            }
+            .background(Color.blue)
+            .foregroundColor(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+//            Model3D(named: "Scene", bundle: realityKitContentBundle)
         }
-        .padding()
-        .onChange(of: showImmersiveSpace) { _, newValue in
-            Task {
-                if newValue {
-                    switch await openImmersiveSpace(id: "ImmersiveSpace") {
-                    case .opened:
-                        immersiveSpaceIsShown = true
-                    case .error, .userCancelled:
-                        fallthrough
-                    @unknown default:
-                        immersiveSpaceIsShown = false
-                        showImmersiveSpace = false
-                    }
-                } else if immersiveSpaceIsShown {
-                    await dismissImmersiveSpace()
-                    immersiveSpaceIsShown = false
-                }
+    }
+}
+
+struct Rectangle: View {
+    @State private var raining = false
+    
+    var body: some View {
+        RealityView { content in
+            for _ in 1...5 {
+                let model = ModelEntity(
+                    mesh: .generateSphere(radius: 0.025),
+                    materials: [SimpleMaterial(color: .red, isMetallic: true)]
+                )
+                
+                let x = Float.random(in: -0.2...0.2)
+                let y = Float.random(in: -0.2...0.2)
+                let z = Float.random(in: -0.2...0.2)
+                
+                model.position = SIMD3(x, y, z)
             }
         }
     }
 }
 
-#Preview(windowStyle: .automatic) {
+#Preview(windowStyle: .plain) {
+    Rectangle()
     ContentView()
 }
